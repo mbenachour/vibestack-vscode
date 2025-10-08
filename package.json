@@ -1,0 +1,74 @@
+{
+  "name": "vibestack-file-tree",
+  "displayName": "VibeStack File Tree",
+  "description": "Display file tree of current repository",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vibestackFileTree.openPanel",
+        "title": "VibeStack: Open Diagram Panel"
+      },
+      {
+        "command": "vibestackFileTree.generateDiagram",
+        "title": "VibeStack: Generate Architecture Diagram"
+      }
+    ],
+    "configuration": {
+      "title": "VibeStack",
+      "properties": {
+        "vibestack.openaiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenAI API Key for generating diagrams",
+          "markdownDescription": "Your OpenAI API key. Get one at https://platform.openai.com/api-keys"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vibestack-sidebar",
+          "title": "VibeStack",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "vibestack-sidebar": [
+        {
+          "id": "vibestackFileTree",
+          "name": "File Tree"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts"
+  },
+  "dependencies": {
+    "openai": "^4.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}
