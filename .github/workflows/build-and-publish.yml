@@ -153,20 +153,13 @@ jobs:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: vsce publish
 
-      - name: Create GitHub Release Assets
-        run: |
-          vsce package
-          echo "VSIX_PATH=$(ls *.vsix)" >> $GITHUB_ENV
-
-      - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1
+      - name: Package and Upload Release Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{ env.VSIX_PATH }}
-          asset_name: ${{ env.VSIX_PATH }}
-          asset_content_type: application/zip
+        run: |
+          vsce package
+          VSIX_FILE=$(ls *.vsix)
+          gh release upload ${{ github.event.release.tag_name }} "$VSIX_FILE" --clobber
 
   # Publish to Open VSX Registry (alternative marketplace)
   publish-open-vsx:
