@@ -4,6 +4,8 @@ A VS Code extension that generates intelligent architecture diagrams of your cod
 
 ## ✨ Features
 
+
+
 ### 🤖 AI-Powered Diagram Generation
 - **Smart Analysis**: Uses OpenAI GPT to analyze your project structure and README files
 - **Multi-Step Process**: 3-stage generation (explanation → component mapping → diagram creation)

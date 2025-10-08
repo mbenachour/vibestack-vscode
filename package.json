@@ -3,12 +3,17 @@
   "displayName": "VibeStack File Tree",
   "description": "Display file tree of current repository",
   "version": "0.0.1",
+  "publisher": "mbenachour",
   "engines": {
     "vscode": "^1.80.0"
   },
   "categories": [
     "Other"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mbenachour/vibestack-vscode.git"
+  },
   "activationEvents": [
     "onStartupFinished"
   ],
