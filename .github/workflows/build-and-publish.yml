@@ -151,7 +151,7 @@ jobs:
       - name: Publish to VS Code Marketplace
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        run: vsce publish --yarn
+        run: vsce publish
 
       - name: Create GitHub Release Assets
         run: |
@@ -197,7 +197,7 @@ jobs:
       - name: Publish to Open VSX Registry
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
-        run: ovsx publish --yarn
+        run: ovsx publish
 
   # Notify on completion
   notify:
