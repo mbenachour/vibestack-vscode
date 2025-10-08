@@ -25,31 +25,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check git history depth
+      - name: Check if base and head are different
         id: git-check
         run: |
-          COMMIT_COUNT=$(git rev-list --count HEAD)
-          echo "commit-count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
-          if [ "$COMMIT_COUNT" -gt 1 ]; then
-            echo "has-history=true" >> $GITHUB_OUTPUT
+          BASE_SHA=$(git rev-parse origin/${{ github.event.repository.default_branch }} 2>/dev/null || echo "")
+          HEAD_SHA=$(git rev-parse HEAD)
+
+          if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "$HEAD_SHA" ]; then
+            echo "has-diff=true" >> $GITHUB_OUTPUT
+            echo "Base and HEAD are different, will run Trufflehog scan"
           else
-            echo "has-history=false" >> $GITHUB_OUTPUT
+            echo "has-diff=false" >> $GITHUB_OUTPUT
+            echo "Base and HEAD are the same or no base branch, will skip Trufflehog scan"
           fi
 
       - name: Run Trufflehog OSS (Git History Scan)
-        if: steps.git-check.outputs.has-history == 'true'
+        if: steps.git-check.outputs.has-diff == 'true'
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
           base: ${{ github.event.repository.default_branch }}
           head: HEAD
-          extra_args: --debug --only-verified
-
-      - name: Run Trufflehog OSS (Filesystem Scan)
-        if: steps.git-check.outputs.has-history == 'false'
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
           extra_args: --debug --only-verified
 
       - name: GitLeaks Secret Scanning
