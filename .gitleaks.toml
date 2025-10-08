@@ -32,9 +32,7 @@ id = "npm-token"
 description = "NPM Access Token"
 regex = '''npm_[A-Za-z0-9]{36}'''
 keywords = ["npm_"]
-
-# Allowlist certain files that might have false positives
-[[rules.allowlist]]
+[rules.allowlist]
 paths = [
     '''README\.md''',
     '''package\.json''',
