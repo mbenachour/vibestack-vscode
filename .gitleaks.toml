@@ -1,0 +1,46 @@
+# GitLeaks configuration for VibeStack VS Code Extension
+title = "GitLeaks config for VS Code Extension"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "openai-api-key"
+description = "OpenAI API Key"
+regex = '''sk-[a-zA-Z0-9]{20}T3BlbkFJ[a-zA-Z0-9]{20}'''
+keywords = ["sk-"]
+
+[[rules]]
+id = "vscode-marketplace-token"
+description = "VS Code Marketplace Personal Access Token"
+regex = '''[a-z0-9]{52}'''
+keywords = ["vsce", "marketplace", "publish"]
+
+[[rules]]
+id = "github-token"
+description = "GitHub Personal Access Token"
+regex = '''ghp_[0-9a-zA-Z]{36}'''
+keywords = ["ghp_"]
+
+[[rules]]
+id = "npm-token"
+description = "NPM Access Token"
+regex = '''npm_[A-Za-z0-9]{36}'''
+keywords = ["npm_"]
+
+# Allowlist certain files that might have false positives
+[[rules.allowlist]]
+paths = [
+    '''README\.md''',
+    '''package\.json''',
+    '''\.github/workflows/.*\.yml''',
+]
+
+# Additional patterns to ignore
+[allowlist]
+paths = [
+    '''node_modules/.*''',
+    '''out/.*''',
+    '''\.vscode/.*''',
+    '''.*\.vsix''',
+]

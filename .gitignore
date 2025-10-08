@@ -1,5 +1,54 @@
-node_modules
-out
-.vscode-test
+# Compiled output
+out/
+dist/
 *.vsix
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# VS Code test files
+.vscode-test/
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+
+# API Keys and tokens (security)
+**/config/secrets.*
+**/*secret*
+**/*token*
+**/*key*
+*.pem
+*.p12
+*.pfx
+
+# Logs
+logs/
+*.log
+
+# Coverage and testing
+coverage/
+.nyc_output/
+
+# ESLint cache
+.eslintcache
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Temporary folders
+tmp/
+temp/
