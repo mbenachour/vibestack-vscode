@@ -21,9 +21,24 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check if base and head are different
+        id: pr-check
+        if: github.event_name == 'pull_request'
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          if [ "$BASE_SHA" != "$HEAD_SHA" ]; then
+            echo "has-diff=true" >> $GITHUB_OUTPUT
+            echo "Base and HEAD are different, will run Trufflehog scan"
+          else
+            echo "has-diff=false" >> $GITHUB_OUTPUT
+            echo "Base and HEAD are the same, will skip Trufflehog scan"
+          fi
+
       - name: Run Trufflehog on PR Changes
         uses: trufflesecurity/trufflehog@main
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && steps.pr-check.outputs.has-diff == 'true'
         with:
           path: ./
           base: ${{ github.event.pull_request.base.sha }}
