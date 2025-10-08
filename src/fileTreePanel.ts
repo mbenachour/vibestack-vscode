@@ -19,7 +19,7 @@ export class FileTreePanel {
         // Otherwise, create a new panel
         const panel = vscode.window.createWebviewPanel(
             'vibestackFileTree',
-            'VibeStack File Tree',
+            'VibeStack',
             column,
             {
                 enableScripts: true,
