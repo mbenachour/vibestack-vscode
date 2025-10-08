@@ -1,8 +1,13 @@
 # GitLeaks configuration for VibeStack VS Code Extension
 title = "GitLeaks config for VS Code Extension"
 
+# Use default rules as base
 [extend]
 useDefault = true
+
+# Global settings
+[extend.global]
+no-git = false
 
 [[rules]]
 id = "openai-api-key"
