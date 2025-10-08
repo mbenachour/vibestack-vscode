@@ -15,10 +15,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Run Trufflehog on PR Changes
+        uses: trufflesecurity/trufflehog@main
+        if: github.event_name == 'pull_request'
+        with:
+          path: ./
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.event.pull_request.head.sha }}
+          extra_args: --debug --only-verified
+        continue-on-error: true
+
       - name: Run GitLeaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          config-path: .gitleaks.toml
 
   # Build validation
   validate-build:
