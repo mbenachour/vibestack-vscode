@@ -7,14 +7,16 @@ export class DiagramPanel {
     private _disposables: vscode.Disposable[] = [];
     private _mermaidCode: string;
     private _rootPath: string;
+    private _hasApiKey: boolean;
 
-    public static createOrShow(extensionUri: vscode.Uri, mermaidCode: string, rootPath: string) {
+    public static createOrShow(extensionUri: vscode.Uri, mermaidCode: string, rootPath: string, hasApiKey: boolean = false) {
         const column = vscode.ViewColumn.One;
 
         // If we already have a panel, update it
         if (DiagramPanel.currentPanel) {
             DiagramPanel.currentPanel._mermaidCode = mermaidCode;
             DiagramPanel.currentPanel._rootPath = rootPath;
+            DiagramPanel.currentPanel._hasApiKey = hasApiKey;
             DiagramPanel.currentPanel._panel.reveal(column);
             DiagramPanel.currentPanel._update();
             return;
@@ -32,13 +34,14 @@ export class DiagramPanel {
             }
         );
 
-        DiagramPanel.currentPanel = new DiagramPanel(panel, extensionUri, mermaidCode, rootPath);
+        DiagramPanel.currentPanel = new DiagramPanel(panel, extensionUri, mermaidCode, rootPath, hasApiKey);
     }
 
-    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, mermaidCode: string, rootPath: string) {
+    private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, mermaidCode: string, rootPath: string, hasApiKey: boolean) {
         this._panel = panel;
         this._mermaidCode = mermaidCode;
         this._rootPath = rootPath;
+        this._hasApiKey = hasApiKey;
 
         // Set the webview's initial html content
         this._update();
@@ -55,6 +58,9 @@ export class DiagramPanel {
                         break;
                     case 'generate':
                         vscode.commands.executeCommand('vibestackFileTree.generateDiagram');
+                        break;
+                    case 'setupApiKey':
+                        vscode.commands.executeCommand('vibestackFileTree.setupApiKey');
                         break;
                 }
             },
@@ -78,6 +84,14 @@ export class DiagramPanel {
     private _update() {
         const webview = this._panel.webview;
         this._panel.webview.html = this._getHtmlForWebview(webview);
+    }
+
+    private _getEmptyStateMessage(): string {
+        if (this._hasApiKey) {
+            return '<div id="empty-state" style="color: #888; font-size: 18px; text-align: center; padding: 40px;"><h3>Architecture Diagram</h3><p>Generate a visual representation of your project\'s architecture using AI.</p><p style="color: #666; font-size: 14px;">Click "Generate Diagram" to analyze your project structure.</p></div>';
+        } else {
+            return '<div id="empty-state" style="color: #888; font-size: 18px; text-align: center; padding: 40px;"><h3>Architecture Diagram</h3><p>Generate a visual representation of your project\'s architecture using AI.</p><p style="color: #f48771; font-size: 14px;">⚠️ OpenAI API key required. Click "Setup API Key" to configure.</p></div>';
+        }
     }
 
     private _getHtmlForWebview(webview: vscode.Webview): string {
@@ -172,13 +186,14 @@ export class DiagramPanel {
 <body>
     <div class="controls">
         <button onclick="generateDiagram()" id="generate-btn">Generate Diagram</button>
+        ${!this._hasApiKey ? '<button onclick="setupApiKey()" id="setup-btn" style="background-color: #0078d4; margin-left: 8px;">Setup API Key</button>' : ''}
         <button onclick="zoomIn()" id="zoom-in" style="display:none;">Zoom In</button>
         <button onclick="zoomOut()" id="zoom-out" style="display:none;">Zoom Out</button>
         <button onclick="resetZoom()" id="reset-zoom" style="display:none;">Reset Zoom</button>
     </div>
 
     <div class="diagram-container" id="diagram-container">
-        ${this._mermaidCode ? `<div class="mermaid" id="mermaid-diagram">${this._mermaidCode}</div>` : '<div id="empty-state" style="color: #888; font-size: 18px; text-align: center;">Click "Generate Diagram" to create your architecture diagram</div>'}
+        ${this._mermaidCode ? `<div class="mermaid" id="mermaid-diagram">${this._mermaidCode}</div>` : this._getEmptyStateMessage()}
     </div>
 
     <script>
@@ -191,6 +206,13 @@ export class DiagramPanel {
             btn.disabled = true;
             btn.textContent = 'Generating...';
             vscode.postMessage({ command: 'generate' });
+        }
+
+        function setupApiKey() {
+            // Only call if the button exists (it should only exist when API key is not set)
+            if (document.getElementById('setup-btn')) {
+                vscode.postMessage({ command: 'setupApiKey' });
+            }
         }
 
         function zoomIn() {

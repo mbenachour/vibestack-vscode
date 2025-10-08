@@ -22,6 +22,10 @@
       {
         "command": "vibestackFileTree.generateDiagram",
         "title": "VibeStack: Generate Architecture Diagram"
+      },
+      {
+        "command": "vibestackFileTree.setupApiKey",
+        "title": "VibeStack: Setup OpenAI API Key"
       }
     ],
     "configuration": {
@@ -30,8 +34,8 @@
         "vibestack.openaiApiKey": {
           "type": "string",
           "default": "",
-          "description": "OpenAI API Key for generating diagrams",
-          "markdownDescription": "Your OpenAI API key. Get one at https://platform.openai.com/api-keys"
+          "description": "OpenAI API Key for generating architecture diagrams",
+          "markdownDescription": "Your OpenAI API key for generating AI-powered architecture diagrams. **Required for diagram generation.** Get one at [OpenAI Platform](https://platform.openai.com/api-keys). You can also use the command 'VibeStack: Setup OpenAI API Key' from the command palette."
         }
       }
     },

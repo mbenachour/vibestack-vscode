@@ -8,7 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('vibestackFileTree.openPanel', async () => {
             // Show empty panel first
-            DiagramPanel.createOrShow(context.extensionUri, '', '');
+            DiagramPanel.createOrShow(context.extensionUri, '', '', hasApiKey());
         })
     );
 
@@ -19,11 +19,24 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
 
+    // Register command to set up API key
+    context.subscriptions.push(
+        vscode.commands.registerCommand('vibestackFileTree.setupApiKey', async () => {
+            await setupApiKey(context.extensionUri);
+        })
+    );
+
     // Show empty panel on activation
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (workspaceFolder) {
-        DiagramPanel.createOrShow(context.extensionUri, '', workspaceFolder.uri.fsPath);
+        DiagramPanel.createOrShow(context.extensionUri, '', workspaceFolder.uri.fsPath, hasApiKey());
     }
+}
+
+function hasApiKey(): boolean {
+    const config = vscode.workspace.getConfiguration('vibestack');
+    const apiKey = config.get<string>('openaiApiKey');
+    return !!(apiKey && apiKey.trim() !== '');
 }
 
 async function generateDiagram(context: vscode.ExtensionContext) {
@@ -37,25 +50,47 @@ async function generateDiagram(context: vscode.ExtensionContext) {
     const config = vscode.workspace.getConfiguration('vibestack');
     let apiKey = config.get<string>('openaiApiKey');
 
-    if (!apiKey) {
-        apiKey = await vscode.window.showInputBox({
-            prompt: 'Enter your OpenAI API Key',
-            password: true,
-            placeHolder: 'sk-...'
-        });
+    // Check if API key is set up
+    if (!apiKey || apiKey.trim() === '') {
+        const setupChoice = await vscode.window.showInformationMessage(
+            'OpenAI API key is required to generate diagrams. Would you like to set it up now?',
+            { modal: true },
+            'Set Up API Key',
+            'Open Settings',
+            'Cancel'
+        );
 
-        if (!apiKey) {
-            vscode.window.showErrorMessage('OpenAI API key is required');
-            return;
-        }
+        if (setupChoice === 'Set Up API Key') {
+            apiKey = await vscode.window.showInputBox({
+                prompt: 'Enter your OpenAI API Key (get one at https://platform.openai.com/api-keys)',
+                password: true,
+                placeHolder: 'sk-proj-...',
+                validateInput: (value) => {
+                    if (!value || value.trim() === '') {
+                        return 'API key cannot be empty';
+                    }
+                    if (!value.startsWith('sk-')) {
+                        return 'OpenAI API keys typically start with "sk-"';
+                    }
+                    return null;
+                }
+            });
 
-        // Optionally save it
-        const save = await vscode.window.showQuickPick(['Yes', 'No'], {
-            placeHolder: 'Save API key to settings?'
-        });
+            if (!apiKey) {
+                vscode.window.showWarningMessage('Diagram generation cancelled - API key is required');
+                return;
+            }
 
-        if (save === 'Yes') {
+            // Save the API key
             await config.update('openaiApiKey', apiKey, vscode.ConfigurationTarget.Global);
+            vscode.window.showInformationMessage('OpenAI API key saved successfully!');
+        } else if (setupChoice === 'Open Settings') {
+            // Open VS Code settings to the specific setting
+            vscode.commands.executeCommand('workbench.action.openSettings', 'vibestack.openaiApiKey');
+            return;
+        } else {
+            vscode.window.showWarningMessage('Diagram generation cancelled - API key is required');
+            return;
         }
     }
 
@@ -97,8 +132,8 @@ async function generateDiagram(context: vscode.ExtensionContext) {
 
             progress.report({ message: 'Rendering diagram...' });
 
-            // Display in panel
-            DiagramPanel.createOrShow(context.extensionUri, mermaidCode, rootPath);
+            // Display in panel (API key is confirmed to exist at this point)
+            DiagramPanel.createOrShow(context.extensionUri, mermaidCode, rootPath, true);
 
             vscode.window.showInformationMessage('Architecture diagram generated successfully!');
         } catch (error) {
@@ -107,6 +142,42 @@ async function generateDiagram(context: vscode.ExtensionContext) {
             console.error('Diagram generation error:', error);
         }
     });
+}
+
+async function setupApiKey(extensionUri?: vscode.Uri) {
+    const config = vscode.workspace.getConfiguration('vibestack');
+    const currentApiKey = config.get<string>('openaiApiKey');
+
+    const apiKey = await vscode.window.showInputBox({
+        prompt: 'Enter your OpenAI API Key (get one at https://platform.openai.com/api-keys)',
+        password: true,
+        placeHolder: 'sk-proj-...',
+        value: currentApiKey || '',
+        validateInput: (value) => {
+            if (!value || value.trim() === '') {
+                return 'API key cannot be empty';
+            }
+            if (!value.startsWith('sk-')) {
+                return 'OpenAI API keys typically start with "sk-"';
+            }
+            return null;
+        }
+    });
+
+    if (apiKey) {
+        await config.update('openaiApiKey', apiKey, vscode.ConfigurationTarget.Global);
+        vscode.window.showInformationMessage('OpenAI API key saved successfully!');
+        
+        // Refresh the panel to hide the setup button
+        if (DiagramPanel.currentPanel && extensionUri) {
+            const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+            if (workspaceFolder) {
+                DiagramPanel.createOrShow(extensionUri, '', workspaceFolder.uri.fsPath, true);
+            }
+        }
+    } else {
+        vscode.window.showWarningMessage('API key setup cancelled');
+    }
 }
 
 export function deactivate() {}
