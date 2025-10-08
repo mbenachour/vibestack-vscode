@@ -1,6 +1,6 @@
 {
   "name": "vibestack-file-tree",
-  "displayName": "VibeStack File Tree",
+  "displayName": "VibeStack",
   "description": "Display file tree of current repository",
   "version": "0.0.1",
   "publisher": "mbenachour",
