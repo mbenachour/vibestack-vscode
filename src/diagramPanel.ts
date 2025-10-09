@@ -120,12 +120,16 @@ export class DiagramPanel {
                 mainBkg: '#e3f2fd',
                 secondBkg: '#bbdefb',
                 border1: '#333',
-                border2: '#666'
+                border2: '#666',
+                fontSize: '16px'
             },
             flowchart: {
-                useMaxWidth: true,
+                useMaxWidth: false,
                 htmlLabels: true,
-                curve: 'basis'
+                curve: 'basis',
+                padding: 20,
+                nodeSpacing: 50,
+                rankSpacing: 50
             }
         });
     </script>
@@ -169,14 +173,18 @@ export class DiagramPanel {
         .diagram-container {
             flex: 1;
             overflow: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
             background-color: #ffffff;
         }
         .mermaid {
-            display: inline-block;
+            display: block;
+            width: 100%;
+            min-width: fit-content;
+        }
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+            min-height: 400px;
         }
         #empty-state {
             color: #666;
@@ -187,6 +195,7 @@ export class DiagramPanel {
     <div class="controls">
         <button onclick="generateDiagram()" id="generate-btn">Generate Diagram</button>
         ${!this._hasApiKey ? '<button onclick="setupApiKey()" id="setup-btn" style="background-color: #0078d4; margin-left: 8px;">Setup API Key</button>' : ''}
+        <button onclick="regenerateDiagram()" id="regenerate-btn" style="display:none; background-color: #ff9800;">Regenerate Diagram</button>
         <button onclick="zoomIn()" id="zoom-in" style="display:none;">Zoom In</button>
         <button onclick="zoomOut()" id="zoom-out" style="display:none;">Zoom Out</button>
         <button onclick="resetZoom()" id="reset-zoom" style="display:none;">Reset Zoom</button>
@@ -215,6 +224,13 @@ export class DiagramPanel {
             }
         }
 
+        function regenerateDiagram() {
+            const btn = document.getElementById('regenerate-btn');
+            btn.disabled = true;
+            btn.textContent = 'Regenerating...';
+            vscode.postMessage({ command: 'generate' });
+        }
+
         function zoomIn() {
             currentZoom += 0.1;
             applyZoom();
@@ -238,9 +254,10 @@ export class DiagramPanel {
             }
         }
 
-        // Show zoom controls if diagram exists
+        // Show zoom controls and regenerate button if diagram exists
         if (hasDiagram) {
             document.getElementById('generate-btn').style.display = 'none';
+            document.getElementById('regenerate-btn').style.display = 'block';
             document.getElementById('zoom-in').style.display = 'block';
             document.getElementById('zoom-out').style.display = 'block';
             document.getElementById('reset-zoom').style.display = 'block';

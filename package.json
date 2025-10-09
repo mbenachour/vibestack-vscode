@@ -2,7 +2,7 @@
   "name": "vibestack",
   "displayName": "VibeStack",
   "description": "Display file tree of current repository",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "mbenachour",
   "engines": {
     "vscode": "^1.80.0"
