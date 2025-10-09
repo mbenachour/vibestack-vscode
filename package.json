@@ -1,7 +1,7 @@
 {
   "name": "vibestack",
   "displayName": "VibeStack",
-  "description": "Display file tree of current repository",
+  "description": "AI generated Diagrams for your project architecture",
   "version": "0.1.1",
   "publisher": "mbenachour",
   "icon": "resources/logo.png",
