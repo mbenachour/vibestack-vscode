@@ -2,7 +2,7 @@
   "name": "vibestack",
   "displayName": "VibeStack",
   "description": "Display file tree of current repository",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "mbenachour",
   "icon": "resources/logo.png",
   "engines": {
